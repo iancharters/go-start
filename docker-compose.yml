@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  gostart:
+    container_name: gostart
+    build:
+      context: .
+      target: base
+    image: gostart:latest
+    depends_on:
+      - gostart_db
+    volumes:
+      - .:/app
+    ports:
+      - 8080:8080
+    environment:
+      - ENV=local
+      - DATABASE_URL=postgres://localuser:localpassword@gostart_db:5432/gostart?sslmode=disable
+    command: air -c .air.toml
+
+  gostart_db:
+    image: postgres:15.4-alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=localuser
+      - POSTGRES_PASSWORD=localpassword
+      - POSTGRES_DB=gostart
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  database-data:
+    external: false
